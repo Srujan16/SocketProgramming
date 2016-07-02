@@ -1,0 +1,5 @@
+com/wavemaker/tutorial/chat/common/OneToMany.class
+com/wavemaker/tutorial/chat/common/BroadCast.class
+com/wavemaker/tutorial/chat/common/Action.class
+com/wavemaker/tutorial/chat/common/User.class
+com/wavemaker/tutorial/chat/common/OneToOne.class

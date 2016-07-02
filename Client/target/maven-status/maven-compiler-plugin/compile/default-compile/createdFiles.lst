@@ -1,0 +1,3 @@
+com/wavemaker/tutorial/chat/client/Client.class
+com/wavemaker/tutorial/chat/client/ClientReader.class
+com/wavemaker/tutorial/chat/client/ClientInputThread.class
