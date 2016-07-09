@@ -22,5 +22,11 @@ public class Action implements  Serializable{
         return group;
     }
 
-
+    @Override
+    public String toString() {
+        return "Action{" +
+                "action='" + action + '\'' +
+                ", group='" + group + '\'' +
+                '}';
+    }
 }
