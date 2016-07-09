@@ -11,79 +11,80 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by srujant on 1/7/16.
  */
-public class GroupManagerImpl implements EventListener,GroupManager {
+public class GroupManagerImpl implements EventListener, GroupManager {
 
-    private Map<String, Group> groupNameVsGroupObjectMap = new HashMap<String, Group>();
+    private Map<String, Group> groupNameVsGroupObjectMap = new ConcurrentHashMap<>();
 
     private ClientManager clientManager = ObjectFactory.getInstance(ClientManager.class);
 
     public GroupManagerImpl() {
         ObjectFactory.getInstance(EventManager.class).registerEvent(this);
     }
-    
 
-    private void add(String currentUser,Group group) {
+
+    private void add(String currentUser, Group group) {
         String message;
-        List<String> usersList=group.getUsersList();
+        CopyOnWriteArrayList<String> usersList = group.getUsersList();
         if (usersList.contains(currentUser)) {
-            clientManager.sendMessage("You already joined the usersList\n",currentUser);
+            clientManager.sendMessage("You already joined the group", currentUser);
         } else {
             usersList.add(currentUser);
-            clientManager.sendMessage("You Joined the usersList\n",currentUser);
-            for(String client: usersList){
-                if(!client.equals(currentUser)){
-                    message=currentUser+" Joined the usersList\n";
-                    clientManager.sendMessage(message,client);
+            clientManager.sendMessage("You Joined the group", currentUser);
+            for (String client : usersList) {
+                if (!client.equals(currentUser)) {
+                    message = currentUser + " Joined the group";
+                    clientManager.sendMessage(message, client);
                 }
             }
         }
     }
 
-    private void remove(String currentUser,Group group) {
-        List<String> usersList=group.getUsersList();
+    private void remove(String currentUser, Group group) {
+        CopyOnWriteArrayList<String> usersList = group.getUsersList();
         String broadcastMessage;
-
         if (usersList.contains(currentUser)) {
             usersList.remove(currentUser);
-            clientManager.sendMessage("You left the usersList\n",currentUser);
-            for(String client: usersList){
-                if(!client.equals(currentUser)){
-                    broadcastMessage = currentUser+" left the usersList\n";
-                    clientManager.sendMessage(broadcastMessage,client);
+            clientManager.sendMessage("You left the group", currentUser);
+            for (String client : usersList) {
+                if (!client.equals(currentUser)) {
+                    broadcastMessage = currentUser + " left the group";
+                    clientManager.sendMessage(broadcastMessage, client);
                 }
             }
 
         } else {
-            clientManager.sendMessage("You are not a member in the usersList\n",currentUser);
+            clientManager.sendMessage("You are not a member in the group", currentUser);
         }
     }
 
     private void createGroup(String currentUser, Group group) {
-        List<String> usersList=group.getUsersList();
+        CopyOnWriteArrayList<String> usersList = group.getUsersList();
         usersList.add(currentUser);
-        clientManager.sendMessage("You joined the usersList\n", currentUser);
-
+        clientManager.sendMessage("You Joined the group", currentUser);
     }
 
 
     private void send(Group group, BroadCast broadCast, String currentUser) {
-        String message ;
-        List<String> usersList=group.getUsersList();
+        String message;
+        CopyOnWriteArrayList<String> usersList = group.getUsersList();
         if (usersList.contains(currentUser)) {
             for (String member : usersList) {
                 if (!member.equals(currentUser)) {
-                    message = currentUser +" : "+ broadCast.getMessage() + "\n";
+                    message = currentUser + " : " + broadCast.getMessage() ;
                     clientManager.sendMessage(message, member);
                 }
             }
         } else {
-            clientManager.sendMessage("You didn't join the usersList \n", currentUser);
+            clientManager.sendMessage("You didn't join the group ", currentUser);
         }
     }
+
     private void action(Action action, String currentUser) {
         if (action.getAction().equals("Join")) {
             if (groupNameVsGroupObjectMap.containsKey(action.getGroup())) {
@@ -96,10 +97,10 @@ public class GroupManagerImpl implements EventListener,GroupManager {
             }
         } else {
             if (!groupNameVsGroupObjectMap.containsKey(action.getGroup())) {
-                clientManager.sendMessage( "com.wavemaker.tutorial.chat.server.Group doesn't exist\n",currentUser);
+                clientManager.sendMessage("Group doesn't exist", currentUser);
             } else {
                 Group group = groupNameVsGroupObjectMap.get(action.getGroup());
-               remove(currentUser, group);
+                remove(currentUser, group);
             }
         }
     }
@@ -117,7 +118,7 @@ public class GroupManagerImpl implements EventListener,GroupManager {
                     break;
                 }
         } else {
-            message = " com.wavemaker.tutorial.chat.server.Group doesn't exist";
+            message = " Group doesn't exist";
             clientManager.sendMessage(message, currentUser);
         }
     }

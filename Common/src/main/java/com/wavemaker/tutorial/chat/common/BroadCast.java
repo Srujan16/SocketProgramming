@@ -23,5 +23,13 @@ public class BroadCast implements Serializable {
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public String toString() {
+        return "BroadCast{" +
+                "group='" + group + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }
 

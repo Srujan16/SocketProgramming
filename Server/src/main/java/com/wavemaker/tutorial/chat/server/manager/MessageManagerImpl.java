@@ -11,11 +11,11 @@ import java.util.List;
 /**
  * Created by srujant on 1/7/16.
  */
-public class UserManager implements EventListener {
+public class MessageManagerImpl implements EventListener, MessageManager {
 
     private ClientManager clientManager = ObjectFactory.getInstance(ClientManager.class);
 
-    public UserManager() {
+    public MessageManagerImpl() {
         ObjectFactory.getInstance(EventManager.class).registerEvent(this);
     }
 
@@ -30,7 +30,6 @@ public class UserManager implements EventListener {
     }
 
     private void oneToMany(OneToMany oneToMany, String currentUser) {
-        System.out.println(oneToMany.getReceivers());
         List<String> receivers = oneToMany.getReceivers();
         for (String client : receivers) {
             if (clientManager.isRegistered(client)) {
@@ -41,6 +40,7 @@ public class UserManager implements EventListener {
             }
         }
     }
+
 
     @Override
     public void onEvent(Object object, String currentUser) {

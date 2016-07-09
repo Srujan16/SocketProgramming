@@ -28,7 +28,7 @@ public class Client {
             socket = new Socket(InetAddress.getLocalHost(), port);
             if (socket.isConnected()) {
                 Thread inputThread = new Thread((Runnable) new ClientInputThread(socket));
-                Thread readerThread = new Thread((Runnable) new ClientReader(socket));
+                Thread readerThread = new Thread((Runnable) new ClientReader(socket, System.out));
                 inputThread.start();
                 readerThread.start();
             } else {
