@@ -1,10 +1,6 @@
 package com.wavemaker.tutorial.chat.server;
 
-import com.wavemaker.tutorial.chat.common.BroadCast;
-import com.wavemaker.tutorial.chat.server.manager.ClientManager;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**

@@ -1,12 +1,13 @@
 package com.wavemaker.tutorial.chat.server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wavemaker.tutorial.chat.common.User;
 
+
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -17,7 +18,7 @@ import java.net.Socket;
 public class Client {
     private short port;
     private String userName;
-    private ObjectOutputStream objectOutputStream;
+    private BufferedWriter bufferedWriter;
 
     public String getUser() {
         return userName;
@@ -37,8 +38,11 @@ public class Client {
             if (socket.isConnected()) {
                 User user = new User();
                 user.setUserName(userName);
-                objectOutputStream=new ObjectOutputStream(socket.getOutputStream());
-                objectOutputStream.writeObject(user);
+                ObjectMapper objectMapper = new ObjectMapper();
+                byte[] bytes = objectMapper.writeValueAsBytes(user);
+                bufferedWriter=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                bufferedWriter.write(objectMapper.writeValueAsString(user) + "\n");
+                bufferedWriter.flush();
                 Thread readerThread = new Thread( new ClientReader(socket, new File(user.getUserName())));
                 readerThread.start();
             } else {
@@ -49,7 +53,9 @@ public class Client {
         }
     }
 
-    public ObjectOutputStream getObjectOutputStream() {
-        return objectOutputStream;
+
+    public BufferedWriter getBufferedWriter() {
+        return bufferedWriter;
     }
+
 }

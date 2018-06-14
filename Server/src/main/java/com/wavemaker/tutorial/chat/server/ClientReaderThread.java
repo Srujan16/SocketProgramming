@@ -1,14 +1,17 @@
 package com.wavemaker.tutorial.chat.server;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.wavemaker.tutorial.chat.common.Action;
+import com.wavemaker.tutorial.chat.common.BroadCast;
+import com.wavemaker.tutorial.chat.common.OneToOne;
 import com.wavemaker.tutorial.chat.server.event.EventManager;
-import com.wavemaker.tutorial.chat.server.manager.ClientManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.SocketException;
+import java.io.BufferedReader;
 import java.net.SocketTimeoutException;
 
 /**
@@ -17,34 +20,41 @@ import java.net.SocketTimeoutException;
 public class ClientReaderThread implements Runnable {
 
     private String currentUser;
-    private ObjectInputStream objectInputStream;
-    private ClientManager clientManager = ObjectFactory.getInstance(ClientManager.class);
+    private BufferedReader bufferedReader;
+
     private EventManager eventManager = ObjectFactory.getInstance(EventManager.class);
 
     private static final Logger logger = LoggerFactory.getLogger(ClientReaderThread.class.getName());
 
-    ClientReaderThread(String currentUser, ObjectInputStream objectInputStream) {
+    ClientReaderThread(String currentUser, BufferedReader bufferedReader) {
         this.currentUser = currentUser;
-        this.objectInputStream = objectInputStream;
+        this.bufferedReader = bufferedReader;
     }
 
+
     public void run() {
-        logger.info("Looping for user data {}", currentUser);
         while (true) {
             try {
-                Object object = objectInputStream.readObject();
-                logger.info("Received object {} ", object);
+                String s = bufferedReader.readLine();
+                logger.info("Looping for user data {}", currentUser);
+                ObjectMapper objectMapper=new ObjectMapper();
+                JsonNode jsonNode=objectMapper.readValue(s,JsonNode.class);
+                Object object=null;
+                if (jsonNode.get("type").toString().equals("\"Action\"")){
+                    object=objectMapper.readValue(s,Action.class);
+                }else if(jsonNode.get("type").toString().equals("\"BroadCast\"")){
+                    object=objectMapper.readValue(s,BroadCast.class);
+                }else {
+                    object=objectMapper.readValue(s,OneToOne.class);
+                }
+                logger.info(currentUser+" "+"Received object {} ", object);
                 eventManager.publishEvent(object, currentUser);
-                /*if (System.currentTimeMillis()%2 == 0) {
-                }*/
             } catch (SocketTimeoutException e) {
                 if (Thread.currentThread().isInterrupted()) {
                     break;
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException("Error in reading object for the user" + currentUser, e);
             }
         }
     }
