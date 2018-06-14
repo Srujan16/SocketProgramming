@@ -3,11 +3,17 @@ package com.wavemaker.tutorial.chat.common; /**
  */
 import java.io.Serializable;
 
-public class Action implements  Serializable{
+public class Action extends AbstractMessage implements  Serializable{
+
+    private static final long serialVersionUID = -3412578951914120406L;
+
     private String action;
     private String group;
 
+    public Action(){}
+
     public Action(String action,String group){
+        super("Action");
         this.action=action;
         this.group=group;
     }

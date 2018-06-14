@@ -23,12 +23,11 @@ public class ObjectFactory {
     private static Map<Class, Object> objectsMap = new ConcurrentHashMap();
 
     static {
-        objectsMap.put(EventManager.class, new EventManager());
+        objectsMap.put(EventManager.class,  new EventManager());
         objectsMap.put(ClientManager.class, new ClientManagerImpl());
-        objectsMap.put(GroupManager.class, new GroupManagerImpl());
-        objectsMap.put(MessageManager.class, new MessageManagerImpl());
+        objectsMap.put(GroupManager.class,  new GroupManagerImpl());
+        objectsMap.put(MessageManager.class,new MessageManagerImpl());
         objectsMap.put(ThreadManager.class, new ThreadManager());
-
     }
 
     public static <T> T getInstance(Class<T> c) {
