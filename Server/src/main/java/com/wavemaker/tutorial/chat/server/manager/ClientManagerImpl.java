@@ -2,6 +2,7 @@ package com.wavemaker.tutorial.chat.server.manager;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

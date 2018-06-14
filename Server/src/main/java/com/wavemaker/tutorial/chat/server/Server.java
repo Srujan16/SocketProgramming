@@ -1,7 +1,5 @@
 package com.wavemaker.tutorial.chat.server;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wavemaker.tutorial.chat.common.User;
 
 import com.wavemaker.tutorial.chat.server.manager.ClientManager;
@@ -10,12 +8,14 @@ import com.wavemaker.tutorial.chat.server.manager.ThreadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.SyncFailedException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -84,11 +84,9 @@ public class Server {
         if (started) {
             return;
         }
-        logger.debug("started");
         started = true;
         try {
             serverSocket = new ServerSocket(port);
-            /*Amount of time a socket read operation can be blocked. On expiry SocketTimeOutException is thrown but the sockt is still valid*/
             serverSocket.setSoTimeout(5000);
         }
         catch (IOException e) {
@@ -113,14 +111,12 @@ public class Server {
 
     private void addNewClient() throws IOException, ClassNotFoundException {
         Socket client = serverSocket.accept();
-        client.setSoTimeout(3000);
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        String s = bufferedReader.readLine();
-        ObjectMapper objectMapper = new ObjectMapper();
-        User user = objectMapper.readValue(s,User.class);
+        client.setSoTimeout(5000);
+        ObjectInputStream objectInputStream = new ObjectInputStream(client.getInputStream());
+        User user = (User) objectInputStream.readObject();
         logger.info("New User : {} Joined the network", user.getUserName());
-        clientManager.registerClient(user.getUserName(),client.getOutputStream());
-        Thread readerThread = new Thread(new ClientReaderThread(user.getUserName(),bufferedReader));
+        clientManager.registerClient(user.getUserName(), client.getOutputStream());
+        Thread readerThread = new Thread(new ClientReaderThread(user.getUserName(), objectInputStream));
         readerThread.start();
         threadManager.add(readerThread);
     }

@@ -1,6 +1,5 @@
 package com.wavemaker.tutorial.chat.server.manager;
 
-
 import com.wavemaker.tutorial.chat.common.Action;
 import com.wavemaker.tutorial.chat.common.BroadCast;
 import com.wavemaker.tutorial.chat.server.event.EventListener;
@@ -8,7 +7,8 @@ import com.wavemaker.tutorial.chat.server.Group;
 import com.wavemaker.tutorial.chat.server.ObjectFactory;
 import com.wavemaker.tutorial.chat.server.event.EventManager;
 
-
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,13 +21,7 @@ public class GroupManagerImpl implements EventListener, GroupManager {
 
     private Map<String, Group> groupNameVsGroupObjectMap = new ConcurrentHashMap<>();
 
-
     private ClientManager clientManager = ObjectFactory.getInstance(ClientManager.class);
-
-    public GroupManagerImpl(EventManager eventManagerBean){
-        eventManagerBean.registerEvent(this);
-    }
-
 
     public GroupManagerImpl() {
         ObjectFactory.getInstance(EventManager.class).registerEvent(this);
@@ -72,7 +66,6 @@ public class GroupManagerImpl implements EventListener, GroupManager {
     private void createGroup(String currentUser, Group group) {
         CopyOnWriteArrayList<String> usersList = group.getUsersList();
         usersList.add(currentUser);
-        System.out.println(currentUser + " first " + group);
         clientManager.sendMessage("You Joined the group", currentUser);
     }
 
@@ -83,7 +76,7 @@ public class GroupManagerImpl implements EventListener, GroupManager {
         if (usersList.contains(currentUser)) {
             for (String member : usersList) {
                 if (!member.equals(currentUser)) {
-                    message = currentUser + " : " + broadCast.getMessage();
+                    message = currentUser + " : " + broadCast.getMessage() ;
                     clientManager.sendMessage(message, member);
                 }
             }
@@ -93,25 +86,21 @@ public class GroupManagerImpl implements EventListener, GroupManager {
     }
 
     private void action(Action action, String currentUser) {
-        synchronized (groupNameVsGroupObjectMap) {
-            if (action.getAction().equals("Join")) {
+        if (action.getAction().equals("Join")) {
+            if (groupNameVsGroupObjectMap.containsKey(action.getGroup())) {
                 Group group = groupNameVsGroupObjectMap.get(action.getGroup());
-                if (group != null) {
-                    add(currentUser, group);
-                } else {
-                    group = new Group();
-                    createGroup(currentUser, group);
-                    groupNameVsGroupObjectMap.put(action.getGroup(), group);
-                }
-            } else if (action.getAction().equals("Leave")) {
-                if (!groupNameVsGroupObjectMap.containsKey(action.getGroup())) {
-                    clientManager.sendMessage("Group doesn't exist", currentUser);
-                } else {
-                    Group group = groupNameVsGroupObjectMap.get(action.getGroup());
-                    remove(currentUser, group);
-                }
+                add(currentUser, group);
             } else {
-                throw new IllegalStateException();
+                Group group = new Group();
+                createGroup(currentUser, group);
+                groupNameVsGroupObjectMap.put(action.getGroup(), group);
+            }
+        } else {
+            if (!groupNameVsGroupObjectMap.containsKey(action.getGroup())) {
+                clientManager.sendMessage("Group doesn't exist", currentUser);
+            } else {
+                Group group = groupNameVsGroupObjectMap.get(action.getGroup());
+                remove(currentUser, group);
             }
         }
     }
@@ -119,23 +108,20 @@ public class GroupManagerImpl implements EventListener, GroupManager {
 
     private void broadCast(BroadCast broadcast, String currentUser) {
         String message;
-        synchronized (groupNameVsGroupObjectMap) {
-            if (groupNameVsGroupObjectMap.containsKey(broadcast.getGroup())) {
-                String destination = broadcast.getGroup();
-                Set<String> groups = groupNameVsGroupObjectMap.keySet();
-                for (String groupName : groups)
-                    if (destination.equals(groupName)) {
-                        Group group = groupNameVsGroupObjectMap.get(groupName);
-                        send(group, broadcast, currentUser);
-                        break;
-                    }
-            } else {
-                message = " Group doesn't exist";
-                clientManager.sendMessage(message, currentUser);
-            }
+        if (groupNameVsGroupObjectMap.containsKey(broadcast.getGroup())) {
+            String destination = broadcast.getGroup();
+            Set<String> groups = groupNameVsGroupObjectMap.keySet();
+            for (String groupName : groups)
+                if (destination.equals(groupName)) {
+                    Group group = groupNameVsGroupObjectMap.get(groupName);
+                    send(group, broadcast, currentUser);
+                    break;
+                }
+        } else {
+            message = " Group doesn't exist";
+            clientManager.sendMessage(message, currentUser);
         }
     }
-
 
     @Override
     public void onEvent(Object object, String currentUser) {
@@ -146,4 +132,5 @@ public class GroupManagerImpl implements EventListener, GroupManager {
             action((Action) object, currentUser);
         }
     }
+
 }

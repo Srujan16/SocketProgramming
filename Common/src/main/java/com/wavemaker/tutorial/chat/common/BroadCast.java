@@ -4,19 +4,14 @@ package com.wavemaker.tutorial.chat.common; /**
 
 import java.io.Serializable;
 
-public class BroadCast extends AbstractMessage implements Serializable {
+public class BroadCast implements Serializable {
 
-
-    private static final long serialVersionUID = -761847321411625438L;
 
     private String group;
     private String message;
 
 
-    public  BroadCast(){}
-
     public BroadCast(String group, String message) {
-        super("BroadCast");
         this.group = group;
         this.message = message;
     }

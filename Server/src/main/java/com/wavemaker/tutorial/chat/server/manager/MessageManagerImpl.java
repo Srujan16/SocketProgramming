@@ -19,12 +19,7 @@ public class MessageManagerImpl implements EventListener, MessageManager {
         ObjectFactory.getInstance(EventManager.class).registerEvent(this);
     }
 
-    public MessageManagerImpl(EventManager eventManagerBean){
-        eventManagerBean.registerEvent(this);
-    }
-
-
-    private synchronized void oneToOne(OneToOne oneToOne, String currentUser) {
+    private void oneToOne(OneToOne oneToOne, String currentUser) {
         if (clientManager.isRegistered(oneToOne.getDestination())) {
             clientManager.sendMessage(currentUser + " : " + oneToOne.getMessage() + "\n", oneToOne.getDestination());
             clientManager.sendMessage("message sent successfully\n", currentUser);
@@ -34,7 +29,7 @@ public class MessageManagerImpl implements EventListener, MessageManager {
 
     }
 
-    private synchronized void oneToMany(OneToMany oneToMany, String currentUser) {
+    private void oneToMany(OneToMany oneToMany, String currentUser) {
         List<String> receivers = oneToMany.getReceivers();
         for (String client : receivers) {
             if (clientManager.isRegistered(client)) {

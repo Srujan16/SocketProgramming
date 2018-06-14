@@ -5,14 +5,11 @@ import java.io.Serializable;
 /**
  * Created by srujant on 1/7/16.
  */
-public class OneToOne extends  AbstractMessage implements Serializable {
+public class OneToOne implements Serializable {
     private String message;
     private String destination;
 
-    public OneToOne(){}
-
     public OneToOne(String message,String destination){
-        super("OneToOne");
         this.message=message;
         this.destination=destination;
     }
@@ -23,13 +20,5 @@ public class OneToOne extends  AbstractMessage implements Serializable {
 
     public String getDestination() {
         return destination;
-    }
-
-    @Override
-    public String toString() {
-        return "OneToOne{" +
-                "message='" + message + '\'' +
-                ", destination='" + destination + '\'' +
-                '}';
     }
 }
