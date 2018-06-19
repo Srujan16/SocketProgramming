@@ -1,5 +1,5 @@
 # SocketProgramming
-Chat application implementation in java using sockets.
+Chat application in java using sockets.
 
 # Functionalities 
 1) OneToOne chat.
@@ -9,8 +9,8 @@ Chat application implementation in java using sockets.
 5) Leaving a group chat.
 
 ## Server
-Server is a thread that keeps listening on a port, waiting for incoming client connections.
-A new thread is created for each newly connected client, that keeps listening for incoming messages from clients.
+Server listens on a port, waiting for incoming client connections.
+A new thread is spawned per connection, that keeps listening for incoming messages from the connected client.
 **SocketTimeout of 3000** is set for each socket inputstream read operation.
 
 ## Data Exchange 
@@ -23,5 +23,4 @@ A new thread is created for each newly connected client, that keeps listening fo
  >**BroadCast** : {"type":"BroadCast", "group":"groupName","message":"Messaged to be published in group"}
 
 ## Client
-On the client side, two threads are created for each user. One thread keeps listening for the input from user and the other thread keeps listening 
-for the messages from server.
+On the client side, two threads are created for each user. One thread keeps listening for the input from user and the other thread keeps listening for the messages from server.
